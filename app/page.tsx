@@ -113,14 +113,14 @@ export default function Home() {
               <div className="space-y-6">
                 {messages.map((message, index) => (
                   <div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                    <div className={`max-w-[85%] rounded-2xl px-5 py-3 shadow-sm ${
+                    <div className={`max-w-[85%] rounded-2xl px-5 py-4 shadow-sm ${
                       message.role === 'user'
                         ? 'bg-blue-600 text-white'
-                        : 'bg-zinc-100 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-200 border dark:border-zinc-700'
+                        : 'bg-zinc-100 text-zinc-800 dark:bg-[#1e1e1e] dark:text-[#e0e0e0] border border-zinc-300 dark:border-zinc-700/50'
                     }`}>
-                      <p className="whitespace-pre-wrap leading-relaxed text-sm sm:text-base">
+                      <div className="whitespace-pre-wrap leading-7 text-sm sm:text-base [&>ol]:list-decimal [&>ul]:list-disc [&>ol]:ml-6 [&>ul]:ml-6 [&>li]:my-2 [&>h1]:text-lg [&>h1]:font-bold [&>h1]:mt-4 [&>h1]:mb-2 [&>h2]:text-base [&>h2]:font-semibold [&>h2]:mt-3 [&>h2]:mb-2 [&>p]:my-2">
                         {message.content}
-                      </p>
+                      </div>
                     </div>
                   </div>
                 ))}
