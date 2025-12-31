@@ -16,14 +16,14 @@ export default function Home() {
 
   // 起動時にブラウザから保存済みのキーを読み込む
   useEffect(() => {
-    const savedKey = localStorage.getItem('user_openrouter_key');
+    const savedKey = localStorage.getItem('user_gemini_key');
     if (savedKey) setApiKey(savedKey);
   }, []);
 
   // キーが変更されたらブラウザに保存する
   const handleApiKeyChange = (value: string) => {
     setApiKey(value);
-    localStorage.setItem('user_openrouter_key', value);
+    localStorage.setItem('user_gemini_key', value);
   };
 
   useEffect(() => {
@@ -34,7 +34,7 @@ export default function Home() {
     e.preventDefault();
     if (!input.trim() || isLoading) return;
     if (!apiKey) {
-      alert('先にOpenRouterのAPIキーを入力してください。');
+      alert('先にGoogle Gemini APIキーを入力してください。');
       return;
     }
 
@@ -88,7 +88,7 @@ export default function Home() {
           {/* APIキー入力セクション */}
           <div className="mb-4 p-4 rounded-xl border border-amber-200 bg-amber-50 dark:border-amber-900/50 dark:bg-amber-950/20 shadow-sm">
             <label className="block text-xs font-bold text-amber-800 dark:text-amber-400 uppercase mb-2">
-              OpenRouter API Key 設定
+              Google Gemini API Key 設定
             </label>
             <input
               type="password"
