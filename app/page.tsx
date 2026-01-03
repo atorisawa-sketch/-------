@@ -12,18 +12,27 @@ export default function Home() {
   const [input, setInput] = useState('');
   const [apiKey, setApiKey] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [style, setStyle] = useState<'formal' | 'casual' | 'business' | 'friendly'>('formal');
   const scrollEndRef = useRef<HTMLDivElement>(null);
 
-  // 起動時にブラウザから保存済みのキーを読み込む
+  // 起動時にブラウザから保存済みのキーとスタイルを読み込む
   useEffect(() => {
     const savedKey = localStorage.getItem('user_gemini_key');
     if (savedKey) setApiKey(savedKey);
+    const savedStyle = localStorage.getItem('tensaku_style') as 'formal' | 'casual' | 'business' | 'friendly' | null;
+    if (savedStyle) setStyle(savedStyle);
   }, []);
 
   // キーが変更されたらブラウザに保存する
   const handleApiKeyChange = (value: string) => {
     setApiKey(value);
     localStorage.setItem('user_gemini_key', value);
+  };
+
+  // スタイルが変更されたらブラウザに保存する
+  const handleStyleChange = (value: 'formal' | 'casual' | 'business' | 'friendly') => {
+    setStyle(value);
+    localStorage.setItem('tensaku_style', value);
   };
 
   useEffect(() => {
@@ -50,7 +59,8 @@ export default function Home() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           message: currentInput,
-          userApiKey: apiKey // ユーザーのキーをサーバーに送る
+          userApiKey: apiKey, // ユーザーのキーをサーバーに送る
+          style: style // 選択されたスタイルを送る
         }),
       });
 
@@ -94,11 +104,67 @@ export default function Home() {
               type="password"
               value={apiKey}
               onChange={(e) => handleApiKeyChange(e.target.value)}
-              placeholder="sk-or-v1-..."
+              placeholder="AIza..."
               className="w-full rounded-lg border border-amber-200 p-2 text-sm dark:bg-zinc-900 dark:border-zinc-700"
             />
             <p className="mt-2 text-[10px] text-amber-700 dark:text-amber-500">
               ※キーはあなたのブラウザにのみ保存され、開発者のサーバーには保存されません。
+            </p>
+          </div>
+
+          {/* スタイル選択セクション */}
+          <div className="mb-4 p-4 rounded-xl border border-blue-200 bg-blue-50 dark:border-blue-900/50 dark:bg-blue-950/20 shadow-sm">
+            <label className="block text-xs font-bold text-blue-800 dark:text-blue-400 uppercase mb-2">
+              添削スタイル
+            </label>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              <button
+                type="button"
+                onClick={() => handleStyleChange('formal')}
+                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                  style === 'formal'
+                    ? 'bg-blue-600 text-white shadow-md'
+                    : 'bg-white text-blue-700 border border-blue-200 hover:bg-blue-50 dark:bg-zinc-900 dark:text-blue-400 dark:border-blue-800 dark:hover:bg-blue-950/30'
+                }`}
+              >
+                フォーマル
+              </button>
+              <button
+                type="button"
+                onClick={() => handleStyleChange('business')}
+                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                  style === 'business'
+                    ? 'bg-blue-600 text-white shadow-md'
+                    : 'bg-white text-blue-700 border border-blue-200 hover:bg-blue-50 dark:bg-zinc-900 dark:text-blue-400 dark:border-blue-800 dark:hover:bg-blue-950/30'
+                }`}
+              >
+                ビジネス
+              </button>
+              <button
+                type="button"
+                onClick={() => handleStyleChange('friendly')}
+                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                  style === 'friendly'
+                    ? 'bg-blue-600 text-white shadow-md'
+                    : 'bg-white text-blue-700 border border-blue-200 hover:bg-blue-50 dark:bg-zinc-900 dark:text-blue-400 dark:border-blue-800 dark:hover:bg-blue-950/30'
+                }`}
+              >
+                親しい間柄
+              </button>
+              <button
+                type="button"
+                onClick={() => handleStyleChange('casual')}
+                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                  style === 'casual'
+                    ? 'bg-blue-600 text-white shadow-md'
+                    : 'bg-white text-blue-700 border border-blue-200 hover:bg-blue-50 dark:bg-zinc-900 dark:text-blue-400 dark:border-blue-800 dark:hover:bg-blue-950/30'
+                }`}
+              >
+                カジュアル
+              </button>
+            </div>
+            <p className="mt-2 text-[10px] text-blue-700 dark:text-blue-500">
+              ※スタイルに応じて、適切な言葉遣いで添削します。
             </p>
           </div>
 
@@ -151,21 +217,32 @@ export default function Home() {
                 }
               }}
             />
-            <div className="absolute bottom-3 right-3 flex gap-2">
-              <button
-                type="button"
-                onClick={handleClear}
-                className="rounded-lg px-3 py-2 text-xs font-medium text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
-              >
-                クリア
-              </button>
-              <button
-                type="submit"
-                disabled={isLoading || !input.trim() || !apiKey}
-                className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-blue-700 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-              >
-                {isLoading ? '送信中' : '添削する'}
-              </button>
+            <div className="absolute bottom-3 right-3 flex flex-col items-end gap-2">
+              {(!apiKey || !input.trim()) && (
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                  {!apiKey && !input.trim() 
+                    ? 'APIキーと文章を入力してください' 
+                    : !apiKey 
+                    ? 'APIキーを入力してください' 
+                    : '文章を入力してください'}
+                </p>
+              )}
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={handleClear}
+                  className="rounded-lg px-3 py-2 text-xs font-medium text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+                >
+                  クリア
+                </button>
+                <button
+                  type="submit"
+                  disabled={isLoading || !input.trim() || !apiKey}
+                  className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-blue-700 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                >
+                  {isLoading ? '送信中' : '添削する'}
+                </button>
+              </div>
             </div>
           </form>
         </div>
